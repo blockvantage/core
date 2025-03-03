@@ -57,13 +57,17 @@ describe("MultisigCaller", function () {
       [
         multisigCaller.getAddress(),
         0,
-        multisigCaller.interface.encodeFunctionData("addApprover", [approver]),
+        multisigCaller.interface.encodeFunctionData("grantRole", [
+          APPROVER_ROLE,
+          approver,
+        ]),
       ] as const;
     removeApproverTx = (approver: Address) =>
       [
         multisigCaller.getAddress(),
         0,
-        multisigCaller.interface.encodeFunctionData("removeApprover", [
+        multisigCaller.interface.encodeFunctionData("revokeRole", [
+          APPROVER_ROLE,
           approver,
         ]),
       ] as const;
@@ -253,16 +257,9 @@ describe("MultisigCaller", function () {
 
   describe("Approver Management", function () {
     it("should allow adding new approver", async function () {
-      const contractAddress = await multisigCaller.getAddress();
       await multisigCaller
         .connect(approver1)
-        .submitTransaction(
-          contractAddress,
-          0,
-          multisigCaller.interface.encodeFunctionData("addApprover", [
-            nonApprover.address,
-          ])
-        );
+        .submitTransaction(...addApproverTx(nonApprover.address));
       await multisigCaller.connect(approver2).approveTransaction(0);
 
       expect(await multisigCaller.hasRole(APPROVER_ROLE, nonApprover.address))
@@ -305,24 +302,46 @@ describe("MultisigCaller", function () {
     it("should not allow non-admin to add approver", async function () {
       const newApprover = ethers.Wallet.createRandom();
       await expect(
-        multisigCaller.connect(approver1).addApprover(newApprover.address)
+        multisigCaller
+          .connect(approver1)
+          .grantRole(APPROVER_ROLE, newApprover.address)
       )
         .to.be.revertedWithCustomError(
           multisigCaller,
           "AccessControlUnauthorizedAccount"
         )
-        .withArgs(approver1.address, ADMIN_ROLE);
+        .withArgs(approver1.address, DEFAULT_ADMIN_ROLE);
     });
 
     it("should not allow non-admin to remove approver", async function () {
       await expect(
-        multisigCaller.connect(approver1).removeApprover(approver2.address)
+        multisigCaller
+          .connect(approver1)
+          .revokeRole(APPROVER_ROLE, approver2.address)
       )
         .to.be.revertedWithCustomError(
           multisigCaller,
           "AccessControlUnauthorizedAccount"
         )
-        .withArgs(approver1.address, ADMIN_ROLE);
+        .withArgs(approver1.address, DEFAULT_ADMIN_ROLE);
+    });
+
+    it("should revert when granting the approver role if it would exceed max approvers", async function () {
+      for (let i = 0; i < 7; i++) {
+        const newApprover = ethers.Wallet.createRandom();
+        await multisigCaller
+          .connect(approver1)
+          .submitTransaction(...addApproverTx(newApprover.address));
+        await multisigCaller.connect(approver2).approveTransaction(i);
+      }
+
+      const lastApprover = ethers.Wallet.createRandom();
+      await multisigCaller
+        .connect(approver1)
+        .submitTransaction(...addApproverTx(lastApprover.address));
+      await expect(multisigCaller.connect(approver2).approveTransaction(7))
+        .to.be.revertedWithCustomError(multisigCaller, "MaxApproversReached")
+        .withArgs(MAX_APPROVERS);
     });
   });
 
@@ -427,12 +446,9 @@ describe("MultisigCaller", function () {
         await multisigCaller.getAddress()
       );
 
-      const data = multisigCaller.interface.encodeFunctionData("addApprover", [
-        await attacker.getAddress(),
-      ]);
       await multisigCaller
         .connect(approver1)
-        .submitTransaction(await multisigCaller.getAddress(), 0, data);
+        .submitTransaction(...addApproverTx(await attacker.getAddress()));
       await multisigCaller.connect(approver2).approveTransaction(0);
     });
 
