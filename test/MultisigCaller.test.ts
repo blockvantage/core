@@ -6,8 +6,6 @@ import {
   Multicall3,
   MultisigAttacker,
   MultisigCaller,
-  MockERC20,
-  Address__factory,
 } from "../typechain-types";
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 import { Address } from "../lib/types";
@@ -23,8 +21,9 @@ describe("MultisigCaller", function () {
   let approver3: SignerWithAddress;
   let nonApprover: SignerWithAddress;
 
-  const APPROVER_ROLE = ethers.keccak256(ethers.toUtf8Bytes("APPROVER_ROLE"));
-  const ADMIN_ROLE = ethers.keccak256(ethers.toUtf8Bytes("ADMIN_ROLE"));
+  let APPROVER_ROLE: string;
+  let ADMIN_ROLE: string;
+  let DEFAULT_ADMIN_ROLE: string;
   const REQUIRED_APPROVALS = 2;
   const MAX_APPROVERS = 10;
   const MIN_APPROVERS = 2;
@@ -44,6 +43,10 @@ describe("MultisigCaller", function () {
       [approver1.address, approver2.address, approver3.address],
       REQUIRED_APPROVALS
     );
+
+    APPROVER_ROLE = await multisigCaller.APPROVER_ROLE();
+    ADMIN_ROLE = await multisigCaller.ADMIN_ROLE();
+    DEFAULT_ADMIN_ROLE = await multisigCaller.DEFAULT_ADMIN_ROLE();
     return multisigCaller;
   }
 
