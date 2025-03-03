@@ -38,8 +38,6 @@ contract MultisigCaller is AccessControlEnumerable, ReentrancyGuard {
     event TransactionSubmitted(uint256 indexed txId, address indexed to, uint256 value, bytes data);
     event TransactionApproved(uint256 indexed txId, address indexed approver);
     event TransactionExecuted(uint256 indexed txId);
-    event ApproverAdded(address indexed account);
-    event ApproverRemoved(address indexed account);
     event RequiredApprovalsChanged(uint256 oldRequired, uint256 newRequired);
 
     using Address for address;
