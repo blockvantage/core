@@ -130,19 +130,21 @@ contract MultisigCaller is AccessControlEnumerable, ReentrancyGuard {
         emit TransactionExecuted(txId);
     }
 
-    function addApprover(address account) public onlyRole(ADMIN_ROLE) {
-        uint256 currentCount = getRoleMemberCount(APPROVER_ROLE);
-        if (currentCount >= MAX_APPROVERS) revert MaxApproversReached(MAX_APPROVERS);
-        grantRole(APPROVER_ROLE, account);
-        emit ApproverAdded(account);
+    function grantRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) onlyRole(getRoleAdmin(role)) {
+        if (role == APPROVER_ROLE) {
+            uint256 currentCount = getRoleMemberCount(APPROVER_ROLE);
+            if (currentCount >= MAX_APPROVERS) revert MaxApproversReached(MAX_APPROVERS);
+        }
+        _grantRole(role, account);
     }
 
-    function removeApprover(address account) public onlyRole(ADMIN_ROLE) {
-        uint256 currentCount = getRoleMemberCount(APPROVER_ROLE);
-        if (currentCount <= requiredApprovals) 
-            revert InsufficientApprovers(requiredApprovals, currentCount);
-        revokeRole(APPROVER_ROLE, account);
-        emit ApproverRemoved(account);
+    function revokeRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) onlyRole(getRoleAdmin(role)) {
+        if (role == APPROVER_ROLE) {
+            uint256 currentCount = getRoleMemberCount(APPROVER_ROLE);
+            if (currentCount <= requiredApprovals) 
+                revert InsufficientApprovers(requiredApprovals, currentCount);
+        }
+        _revokeRole(role, account);
     }
 
     function setRequiredApprovals(uint256 _requiredApprovals) public onlyRole(ADMIN_ROLE) {
