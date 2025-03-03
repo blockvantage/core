@@ -156,10 +156,6 @@ contract MultisigCaller is AccessControlEnumerable, ReentrancyGuard {
         emit RequiredApprovalsChanged(oldRequired, _requiredApprovals);
     }
 
-    function getApproversCount() public view returns (uint256) {
-        return getRoleMemberCount(APPROVER_ROLE);
-    }
-
     /// @notice Aggregate calls, ensuring each returns success if required
     /// @param calls An array of Call3 structs
     /// @return returnData An array of Result structs
@@ -226,60 +222,6 @@ contract MultisigCaller is AccessControlEnumerable, ReentrancyGuard {
         }
         // Finally, make sure the msg.value = SUM(call[0...i].value)
         require(msg.value == valAccumulator, "Multicall3: value mismatch");
-    }
-
-    /// @notice Returns the block hash for the given block number
-    /// @param blockNumber The block number
-    function getBlockHash(uint256 blockNumber) public view returns (bytes32 blockHash) {
-        blockHash = blockhash(blockNumber);
-    }
-
-    /// @notice Returns the block number
-    function getBlockNumber() public view returns (uint256 blockNumber) {
-        blockNumber = block.number;
-    }
-
-    /// @notice Returns the block coinbase
-    function getCurrentBlockCoinbase() public view returns (address coinbase) {
-        coinbase = block.coinbase;
-    }
-
-    /// @notice Returns the block difficulty
-    function getCurrentBlockDifficulty() public view returns (uint256 difficulty) {
-        difficulty = block.difficulty;
-    }
-
-    /// @notice Returns the block gas limit
-    function getCurrentBlockGasLimit() public view returns (uint256 gaslimit) {
-        gaslimit = block.gaslimit;
-    }
-
-    /// @notice Returns the block timestamp
-    function getCurrentBlockTimestamp() public view returns (uint256 timestamp) {
-        timestamp = block.timestamp;
-    }
-
-    /// @notice Returns the (ETH) balance of a given address
-    function getEthBalance(address addr) public view returns (uint256 balance) {
-        balance = addr.balance;
-    }
-
-    /// @notice Returns the block hash of the last block
-    function getLastBlockHash() public view returns (bytes32 blockHash) {
-        unchecked {
-            blockHash = blockhash(block.number - 1);
-        }
-    }
-
-    /// @notice Gets the base fee of the given block
-    /// @notice Can revert if the BASEFEE opcode is not implemented by the given chain
-    function getBasefee() public view returns (uint256 basefee) {
-        basefee = block.basefee;
-    }
-
-    /// @notice Returns the chain id
-    function getChainId() public view returns (uint256 chainid) {
-        chainid = block.chainid;
     }
 
     receive() external payable {}
