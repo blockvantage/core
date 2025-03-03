@@ -347,7 +347,9 @@ describe("MultisigCaller", function () {
 
   describe("getApproversCount", function () {
     it("should return initial approvers count", async function () {
-      expect(await multisigCaller.getApproversCount()).to.equal(3); // approver1, approver2, approver3
+      expect(await multisigCaller.getRoleMemberCount(APPROVER_ROLE)).to.equal(
+        3
+      ); // approver1, approver2, approver3
     });
 
     it("should return updated count after adding approver", async function () {
@@ -357,7 +359,9 @@ describe("MultisigCaller", function () {
         .submitTransaction(...addApproverTx(newApprover.address));
       await multisigCaller.connect(approver2).approveTransaction(0);
 
-      expect(await multisigCaller.getApproversCount()).to.equal(4);
+      expect(await multisigCaller.getRoleMemberCount(APPROVER_ROLE)).to.equal(
+        4
+      );
     });
 
     it("should return updated count after removing approver", async function () {
@@ -366,7 +370,9 @@ describe("MultisigCaller", function () {
         .submitTransaction(...removeApproverTx(approver2.address));
       await multisigCaller.connect(approver2).approveTransaction(0);
 
-      expect(await multisigCaller.getApproversCount()).to.equal(2);
+      expect(await multisigCaller.getRoleMemberCount(APPROVER_ROLE)).to.equal(
+        2
+      );
     });
   });
 
