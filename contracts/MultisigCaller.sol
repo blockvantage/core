@@ -19,8 +19,8 @@ error TransactionAlreadyApproved(uint256 txId, address approver);
 contract MultisigCaller is AccessControlEnumerable, ReentrancyGuard {
     bytes32 public constant APPROVER_ROLE = keccak256("APPROVER_ROLE");
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
-    uint256 public constant MIN_APPROVERS = 2;
-    uint256 public constant MAX_APPROVERS = 10;
+    uint256 private constant MIN_APPROVERS = 2;
+    uint256 private constant MAX_APPROVERS = 10;
     
     uint256 public requiredApprovals;
 
@@ -96,7 +96,7 @@ contract MultisigCaller is AccessControlEnumerable, ReentrancyGuard {
         _approveTransaction(transaction, txId);
     }
 
-    function approveTransaction(uint256 txId) public payable nonReentrant onlyRole(APPROVER_ROLE) {
+    function approveTransaction(uint256 txId) external payable nonReentrant onlyRole(APPROVER_ROLE) {
         if (txId >= transactions.length) revert InvalidTransactionId(txId);
         Transaction storage transaction = transactions[txId];
         _approveTransaction(transaction, txId);
@@ -115,7 +115,7 @@ contract MultisigCaller is AccessControlEnumerable, ReentrancyGuard {
         }
     }
 
-    function _executeTransaction(Transaction storage transaction, uint256 txId) internal {
+    function _executeTransaction(Transaction storage transaction, uint256 txId) private {
         if (transaction.executed) revert TransactionAlreadyExecuted(txId);
         
         transaction.executed = true;
@@ -146,7 +146,7 @@ contract MultisigCaller is AccessControlEnumerable, ReentrancyGuard {
         _revokeRole(role, account);
     }
 
-    function setRequiredApprovals(uint256 _requiredApprovals) public onlyRole(ADMIN_ROLE) {
+    function setRequiredApprovals(uint256 _requiredApprovals) external onlyRole(ADMIN_ROLE) {
         uint256 currentCount = getRoleMemberCount(APPROVER_ROLE);
         if (_requiredApprovals < MIN_APPROVERS) revert RequiredApprovalsTooLow(_requiredApprovals, MIN_APPROVERS);
         if (_requiredApprovals > currentCount) revert RequiredApprovalsExceedApprovers(_requiredApprovals, currentCount);
@@ -163,7 +163,7 @@ contract MultisigCaller is AccessControlEnumerable, ReentrancyGuard {
     /// @notice Aggregate calls, ensuring each returns success if required
     /// @param calls An array of Call3 structs
     /// @return returnData An array of Result structs
-    function aggregate3(Call3[] calldata calls) public payable onlyRole(ADMIN_ROLE) returns (Result[] memory returnData) {
+    function aggregate3(Call3[] calldata calls) external payable onlyRole(ADMIN_ROLE) returns (Result[] memory returnData) {
         uint256 length = calls.length;
         returnData = new Result[](length);
         Call3 calldata calli;
@@ -194,7 +194,7 @@ contract MultisigCaller is AccessControlEnumerable, ReentrancyGuard {
     /// @notice Reverts if msg.value is less than the sum of the call values
     /// @param calls An array of Call3Value structs
     /// @return returnData An array of Result structs
-    function aggregate3Value(Call3Value[] calldata calls) public payable onlyRole(ADMIN_ROLE) returns (Result[] memory returnData) {
+    function aggregate3Value(Call3Value[] calldata calls) external payable onlyRole(ADMIN_ROLE) returns (Result[] memory returnData) {
         uint256 valAccumulator;
         uint256 length = calls.length;
         returnData = new Result[](length);
