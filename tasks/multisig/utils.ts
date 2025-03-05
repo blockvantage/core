@@ -1,8 +1,10 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { baseSepolia } from "../../lib/networks";
+import baseSepoliaDeployments from "../../ignition/deployments/chain-84532/deployed_addresses.json";
 
 const multisigAddress: { [chainId: number]: string } = {
-  [baseSepolia.chainId]: "0xE52566731f732A2eF1be7E3FD27833e7451b3b04",
+  [baseSepolia.chainId]:
+    baseSepoliaDeployments["MultisigCaller#MultisigCaller"],
 };
 
 export const getMultisigAddress = (hre: HardhatRuntimeEnvironment) => {
