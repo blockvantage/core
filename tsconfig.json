@@ -11,6 +11,6 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["./scripts", "./test", "./typechain-types", "./lib"],
+  "include": ["./scripts", "./test", "./typechain-types", "./lib", "./tasks"],
   "files": ["./hardhat.config.ts"]
 }
