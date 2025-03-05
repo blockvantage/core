@@ -1,6 +1,9 @@
 import { task } from "hardhat/config";
 import { findTransactionId } from "../utils";
 import { getMultisigAddress } from "./utils";
+import { keccak256, toUtf8Bytes } from "ethers";
+
+const APPROVER_ROLE = keccak256(toUtf8Bytes("APPROVER_ROLE"));
 
 task(
   "multisig:submit-add-approver",
@@ -12,10 +15,10 @@ task(
       "MultisigCaller",
       getMultisigAddress(hre)
     );
-    const addApproverData = multisig.interface.encodeFunctionData(
-      "addApprover",
-      [approver]
-    );
+    const addApproverData = multisig.interface.encodeFunctionData("grantRole", [
+      APPROVER_ROLE,
+      approver,
+    ]);
 
     const ZERO_VALUE = 0;
     const tx = await multisig.submitTransaction(
