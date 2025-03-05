@@ -18,7 +18,6 @@ error TransactionAlreadyApproved(uint256 txId, address approver);
 
 contract MultisigCaller is AccessControlEnumerable, ReentrancyGuard {
     bytes32 public constant APPROVER_ROLE = keccak256("APPROVER_ROLE");
-    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     uint256 private constant MIN_APPROVERS = 2;
     uint256 private constant MAX_APPROVERS = 10;
     
@@ -69,7 +68,6 @@ contract MultisigCaller is AccessControlEnumerable, ReentrancyGuard {
 
         // Setup the contract itself as the admin
         _grantRole(DEFAULT_ADMIN_ROLE, address(this));
-        _grantRole(ADMIN_ROLE, address(this));
 
         // Setup initial approvers
         for (uint256 i = 0; i < approvers.length; i++) {
@@ -146,7 +144,7 @@ contract MultisigCaller is AccessControlEnumerable, ReentrancyGuard {
         _revokeRole(role, account);
     }
 
-    function setRequiredApprovals(uint256 _requiredApprovals) external onlyRole(ADMIN_ROLE) {
+    function setRequiredApprovals(uint256 _requiredApprovals) external onlyRole(DEFAULT_ADMIN_ROLE) {
         uint256 currentCount = getRoleMemberCount(APPROVER_ROLE);
         if (_requiredApprovals < MIN_APPROVERS) revert RequiredApprovalsTooLow(_requiredApprovals, MIN_APPROVERS);
         if (_requiredApprovals > currentCount) revert RequiredApprovalsExceedApprovers(_requiredApprovals, currentCount);
@@ -159,7 +157,7 @@ contract MultisigCaller is AccessControlEnumerable, ReentrancyGuard {
     /// @notice Aggregate calls, ensuring each returns success if required
     /// @param calls An array of Call3 structs
     /// @return returnData An array of Result structs
-    function aggregate3(Call3[] calldata calls) external payable onlyRole(ADMIN_ROLE) returns (Result[] memory returnData) {
+    function aggregate3(Call3[] calldata calls) external payable onlyRole(DEFAULT_ADMIN_ROLE) returns (Result[] memory returnData) {
         uint256 length = calls.length;
         returnData = new Result[](length);
         Call3 calldata calli;
@@ -190,7 +188,7 @@ contract MultisigCaller is AccessControlEnumerable, ReentrancyGuard {
     /// @notice Reverts if msg.value is less than the sum of the call values
     /// @param calls An array of Call3Value structs
     /// @return returnData An array of Result structs
-    function aggregate3Value(Call3Value[] calldata calls) external payable onlyRole(ADMIN_ROLE) returns (Result[] memory returnData) {
+    function aggregate3Value(Call3Value[] calldata calls) external payable onlyRole(DEFAULT_ADMIN_ROLE) returns (Result[] memory returnData) {
         uint256 valAccumulator;
         uint256 length = calls.length;
         returnData = new Result[](length);
