@@ -22,7 +22,6 @@ describe("MultisigCaller", function () {
   let nonApprover: SignerWithAddress;
 
   let APPROVER_ROLE: string;
-  let ADMIN_ROLE: string;
   let DEFAULT_ADMIN_ROLE: string;
   const REQUIRED_APPROVALS = 2;
   const MAX_APPROVERS = 10;
@@ -45,7 +44,6 @@ describe("MultisigCaller", function () {
     );
 
     APPROVER_ROLE = await multisigCaller.APPROVER_ROLE();
-    ADMIN_ROLE = await multisigCaller.ADMIN_ROLE();
     DEFAULT_ADMIN_ROLE = await multisigCaller.DEFAULT_ADMIN_ROLE();
     return multisigCaller;
   }
@@ -93,7 +91,7 @@ describe("MultisigCaller", function () {
     it("should set up contract as admin", async function () {
       expect(
         await multisigCaller.hasRole(
-          ADMIN_ROLE,
+          DEFAULT_ADMIN_ROLE,
           await multisigCaller.getAddress()
         )
       ).to.be.true;
@@ -441,7 +439,7 @@ describe("MultisigCaller", function () {
             multisigCaller,
             "AccessControlUnauthorizedAccount"
           )
-          .withArgs(approver.address, ADMIN_ROLE);
+          .withArgs(approver.address, DEFAULT_ADMIN_ROLE);
     });
   });
 
@@ -840,7 +838,7 @@ describe("MultisigCaller", function () {
           multisigCaller,
           "AccessControlUnauthorizedAccount"
         )
-        .withArgs(approver1.address, ADMIN_ROLE);
+        .withArgs(approver1.address, DEFAULT_ADMIN_ROLE);
     });
   });
 });
