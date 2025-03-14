@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.28;
 
-interface IERC20 {
-    function transferFrom(address from, address to, uint256 amount) external returns (bool);
-}
+import "@openzeppelin/contracts/interfaces/IERC20.sol";
 
 contract DummyContract {
     event Received(address sender, uint256 amount);
