@@ -11,11 +11,11 @@ contract AddApproverScript is MultisigScript {
 
     function run(address newApprover, address payable multisig) public {
         require(multisig != address(0), "Multisig address required");
-        
+
         MultisigCaller multisigContract = MultisigCaller(multisig);
         bytes32 approverRole = multisigContract.APPROVER_ROLE();
         bytes memory grantRoleCall = abi.encodeWithSignature("grantRole(bytes32,address)", approverRole, newApprover);
-        
+
         vm.startBroadcast();
         vm.recordLogs();
         multisigContract.submitTransaction(multisig, 0, grantRoleCall);

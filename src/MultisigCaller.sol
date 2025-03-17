@@ -20,7 +20,7 @@ contract MultisigCaller is AccessControlEnumerable, ReentrancyGuard {
     bytes32 public constant APPROVER_ROLE = keccak256("APPROVER_ROLE");
     uint256 private constant MIN_APPROVERS = 2;
     uint256 private constant MAX_APPROVERS = 10;
-    
+
     uint256 public requiredApprovals;
 
     struct Transaction {
@@ -61,7 +61,9 @@ contract MultisigCaller is AccessControlEnumerable, ReentrancyGuard {
 
     constructor(address[] memory approvers, uint256 _requiredApprovals) {
         if (approvers.length < MIN_APPROVERS) revert InvalidApproverCount(approvers.length, MIN_APPROVERS);
-        if (_requiredApprovals > approvers.length) revert RequiredApprovalsExceedApprovers(_requiredApprovals, approvers.length);
+        if (_requiredApprovals > approvers.length) {
+            revert RequiredApprovalsExceedApprovers(_requiredApprovals, approvers.length);
+        }
         if (_requiredApprovals < MIN_APPROVERS) revert RequiredApprovalsTooLow(_requiredApprovals, MIN_APPROVERS);
 
         requiredApprovals = _requiredApprovals;
@@ -76,18 +78,17 @@ contract MultisigCaller is AccessControlEnumerable, ReentrancyGuard {
         }
     }
 
-    function submitTransaction(address to, uint256 value, bytes memory data) external payable nonReentrant onlyRole(APPROVER_ROLE) {
+    function submitTransaction(address to, uint256 value, bytes memory data)
+        external
+        payable
+        nonReentrant
+        onlyRole(APPROVER_ROLE)
+    {
         uint256 txId = transactions.length;
-        
-        Transaction memory newTx = Transaction({
-            to: to,
-            value: value,
-            data: data,
-            executed: false,
-            approvalCount: 0
-        });
+
+        Transaction memory newTx = Transaction({to: to, value: value, data: data, executed: false, approvalCount: 0});
         transactions.push(newTx);
-        
+
         emit TransactionSubmitted(txId, to, value, data);
 
         Transaction storage transaction = transactions[txId];
@@ -115,19 +116,22 @@ contract MultisigCaller is AccessControlEnumerable, ReentrancyGuard {
 
     function _executeTransaction(Transaction storage transaction, uint256 txId) private {
         if (transaction.executed) revert TransactionAlreadyExecuted(txId);
-        
+
         transaction.executed = true;
-        
-        (bool success, bytes memory returndata) = transaction.to.call{value: transaction.value}(
-            transaction.data
-        );
+
+        (bool success, bytes memory returndata) = transaction.to.call{value: transaction.value}(transaction.data);
 
         Address.verifyCallResult(success, returndata);
-        
+
         emit TransactionExecuted(txId);
     }
 
-    function grantRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) onlyRole(getRoleAdmin(role)) {
+    function grantRole(bytes32 role, address account)
+        public
+        virtual
+        override(AccessControl, IAccessControl)
+        onlyRole(getRoleAdmin(role))
+    {
         if (role == APPROVER_ROLE) {
             uint256 currentCount = getRoleMemberCount(APPROVER_ROLE);
             if (currentCount >= MAX_APPROVERS) revert MaxApproversReached(MAX_APPROVERS);
@@ -135,11 +139,17 @@ contract MultisigCaller is AccessControlEnumerable, ReentrancyGuard {
         _grantRole(role, account);
     }
 
-    function revokeRole(bytes32 role, address account) public virtual override(AccessControl, IAccessControl) onlyRole(getRoleAdmin(role)) {
+    function revokeRole(bytes32 role, address account)
+        public
+        virtual
+        override(AccessControl, IAccessControl)
+        onlyRole(getRoleAdmin(role))
+    {
         if (role == APPROVER_ROLE) {
             uint256 currentCount = getRoleMemberCount(APPROVER_ROLE);
-            if (currentCount <= requiredApprovals) 
+            if (currentCount <= requiredApprovals) {
                 revert InsufficientApprovers(requiredApprovals, currentCount);
+            }
         }
         _revokeRole(role, account);
     }
@@ -147,8 +157,10 @@ contract MultisigCaller is AccessControlEnumerable, ReentrancyGuard {
     function setRequiredApprovals(uint256 _requiredApprovals) external onlyRole(DEFAULT_ADMIN_ROLE) {
         uint256 currentCount = getRoleMemberCount(APPROVER_ROLE);
         if (_requiredApprovals < MIN_APPROVERS) revert RequiredApprovalsTooLow(_requiredApprovals, MIN_APPROVERS);
-        if (_requiredApprovals > currentCount) revert RequiredApprovalsExceedApprovers(_requiredApprovals, currentCount);
-        
+        if (_requiredApprovals > currentCount) {
+            revert RequiredApprovalsExceedApprovers(_requiredApprovals, currentCount);
+        }
+
         uint256 oldRequired = requiredApprovals;
         requiredApprovals = _requiredApprovals;
         emit RequiredApprovalsChanged(oldRequired, _requiredApprovals);
@@ -157,7 +169,12 @@ contract MultisigCaller is AccessControlEnumerable, ReentrancyGuard {
     /// @notice Aggregate calls, ensuring each returns success if required
     /// @param calls An array of Call3 structs
     /// @return returnData An array of Result structs
-    function aggregate3(Call3[] calldata calls) external payable onlyRole(DEFAULT_ADMIN_ROLE) returns (Result[] memory returnData) {
+    function aggregate3(Call3[] calldata calls)
+        external
+        payable
+        onlyRole(DEFAULT_ADMIN_ROLE)
+        returns (Result[] memory returnData)
+    {
         uint256 length = calls.length;
         returnData = new Result[](length);
         Call3 calldata calli;
@@ -180,7 +197,9 @@ contract MultisigCaller is AccessControlEnumerable, ReentrancyGuard {
                     revert(0x00, 0x64)
                 }
             }
-            unchecked { ++i; }
+            unchecked {
+                ++i;
+            }
         }
     }
 
@@ -188,7 +207,12 @@ contract MultisigCaller is AccessControlEnumerable, ReentrancyGuard {
     /// @notice Reverts if msg.value is less than the sum of the call values
     /// @param calls An array of Call3Value structs
     /// @return returnData An array of Result structs
-    function aggregate3Value(Call3Value[] calldata calls) external payable onlyRole(DEFAULT_ADMIN_ROLE) returns (Result[] memory returnData) {
+    function aggregate3Value(Call3Value[] calldata calls)
+        external
+        payable
+        onlyRole(DEFAULT_ADMIN_ROLE)
+        returns (Result[] memory returnData)
+    {
         uint256 valAccumulator;
         uint256 length = calls.length;
         returnData = new Result[](length);
@@ -199,7 +223,9 @@ contract MultisigCaller is AccessControlEnumerable, ReentrancyGuard {
             uint256 val = calli.value;
             // Humanity will be a Type V Kardashev Civilization before this overflows - andreas
             // ~ 10^25 Wei in existence << ~ 10^76 size uint fits in a uint256
-            unchecked { valAccumulator += val; }
+            unchecked {
+                valAccumulator += val;
+            }
             (result.success, result.returnData) = calli.target.call{value: val}(calli.callData);
             assembly {
                 // Revert if the call fails and failure is not allowed
@@ -216,7 +242,9 @@ contract MultisigCaller is AccessControlEnumerable, ReentrancyGuard {
                     revert(0x00, 0x84)
                 }
             }
-            unchecked { ++i; }
+            unchecked {
+                ++i;
+            }
         }
         // Finally, make sure the msg.value = SUM(call[0...i].value)
         require(msg.value == valAccumulator, "Multicall3: value mismatch");

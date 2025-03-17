@@ -12,16 +12,16 @@ contract TransferOwnershipBatchScript is MultisigScript {
 
     function run(address[] calldata addresses, address newMultisig) public {
         require(addresses.length > 0, "No addresses provided");
-        
+
         // Get the first contract's owner to use as old multisig
         address payable oldMultisig = payable(Ownable(addresses[0]).owner());
         console.log("Current owner (from %s): %s", addresses[0], oldMultisig);
-        
+
         MultisigCaller oldMultisigContract = MultisigCaller(oldMultisig);
-        
+
         // Create batch calls for transferring ownership
         MultisigCaller.Call3[] memory calls = new MultisigCaller.Call3[](addresses.length);
-        for (uint i = 0; i < addresses.length; i++) {
+        for (uint256 i = 0; i < addresses.length; i++) {
             calls[i] = MultisigCaller.Call3({
                 target: addresses[i],
                 allowFailure: false,

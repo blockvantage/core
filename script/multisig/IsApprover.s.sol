@@ -9,10 +9,10 @@ contract IsApproverScript is Script {
 
     function run(address account, address payable multisig) public view returns (bool) {
         require(multisig != address(0), "Multisig address required");
-        
+
         MultisigCaller multisigContract = MultisigCaller(multisig);
         bool isApprover = multisigContract.hasRole(multisigContract.APPROVER_ROLE(), account);
-        
+
         console.log("Account %s is%s an approver", account, isApprover ? "" : " not");
         return isApprover;
     }

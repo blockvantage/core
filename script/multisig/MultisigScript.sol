@@ -8,7 +8,7 @@ import {MultisigCaller} from "../../src/MultisigCaller.sol";
 abstract contract MultisigScript is Script {
     function getTransactionId() internal returns (uint256) {
         Vm.Log[] memory entries = vm.getRecordedLogs();
-        for (uint i = 0; i < entries.length; i++) {
+        for (uint256 i = 0; i < entries.length; i++) {
             // Check if this is the TransactionSubmitted event
             if (entries[i].topics[0] == keccak256("TransactionSubmitted(uint256,address,uint256,bytes)")) {
                 return uint256(entries[i].topics[1]);

@@ -9,9 +9,9 @@ contract ApproveTxScript is Script {
 
     function run(uint256 txId, address payable multisig) public {
         require(multisig != address(0), "Multisig address required");
-        
+
         MultisigCaller multisigContract = MultisigCaller(multisig);
-        
+
         vm.broadcast();
         multisigContract.approveTransaction(txId);
 
