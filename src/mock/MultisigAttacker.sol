@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.28;
+pragma solidity 0.8.26;
 
 interface IMultisigCaller {
     function submitTransaction(address to, uint256 value, bytes memory data) external;
