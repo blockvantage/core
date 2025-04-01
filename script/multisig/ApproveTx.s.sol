@@ -15,7 +15,7 @@ contract ApproveTxScript is Script {
         vm.broadcast();
         multisigContract.approveTransaction(txId);
 
-        (, , , bool executed, uint256 approvalCount) = multisigContract.transactions(txId);
+        (,,, bool executed, uint256 approvalCount) = multisigContract.transactions(txId);
         if (executed) {
             console.log("Transaction was executed!");
         } else {

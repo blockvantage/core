@@ -31,9 +31,7 @@ contract TransferOwnershipBatchScript is MultisigScript {
 
         vm.startBroadcast();
         bytes memory aggregateCall = abi.encodeWithSignature("aggregate3((address,bool,bytes)[])", calls);
-        vm.recordLogs();
-        oldMultisigContract.submitTransaction(oldMultisig, 0, aggregateCall);
-        uint256 txId = getTransactionId();
+        uint256 txId = oldMultisigContract.submitTransaction(oldMultisig, 0, aggregateCall);
         console.log("Transaction submitted!");
         console.log("Transaction ID: %d", txId);
         vm.stopBroadcast();

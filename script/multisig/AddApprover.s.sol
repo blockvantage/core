@@ -17,9 +17,7 @@ contract AddApproverScript is MultisigScript {
         bytes memory grantRoleCall = abi.encodeWithSignature("grantRole(bytes32,address)", approverRole, newApprover);
 
         vm.startBroadcast();
-        vm.recordLogs();
-        multisigContract.submitTransaction(multisig, 0, grantRoleCall);
-        uint256 txId = getTransactionId();
+        uint256 txId = multisigContract.submitTransaction(multisig, 0, grantRoleCall);
         console.log("Add approver transaction submitted!");
         console.log("Transaction ID: %d", txId);
         vm.stopBroadcast();
