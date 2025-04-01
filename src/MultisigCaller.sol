@@ -83,8 +83,9 @@ contract MultisigCaller is AccessControlEnumerable, ReentrancyGuard {
         payable
         nonReentrant
         onlyRole(APPROVER_ROLE)
+        returns (uint256 txId)
     {
-        uint256 txId = transactions.length;
+        txId = transactions.length;
 
         Transaction memory newTx = Transaction({to: to, value: value, data: data, executed: false, approvalCount: 0});
         transactions.push(newTx);
