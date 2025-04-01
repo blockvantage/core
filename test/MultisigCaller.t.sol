@@ -112,6 +112,15 @@ contract MultisigCallerTest is Test {
         multisigCaller.submitTransaction(address(dummyContract), value, data);
     }
 
+    function testSubmitTransaction_ReturnsTransactionId() public {
+        uint256 value = 1 ether;
+        bytes memory data = "";
+
+        vm.prank(approver1);
+        uint256 txId = multisigCaller.submitTransaction(address(dummyContract), value, data);
+        assertEq(txId, 0);
+    }
+
     function testSubmitTransaction_RevertNonApprover() public {
         vm.prank(nonApprover);
         vm.expectRevert(
