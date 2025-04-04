@@ -7,6 +7,7 @@ import {strings} from "solidity-stringutils/strings.sol";
 
 contract MultisigCallerScript is Script {
     MultisigCaller public multisig;
+
     using strings for *;
 
     function setUp() public {}
@@ -14,7 +15,7 @@ contract MultisigCallerScript is Script {
     function run() public {
         string memory approversStr = vm.envString("APPROVERS");
         uint256 requiredApprovals = vm.envUint("REQUIRED_APPROVALS");
-        
+
         address[] memory approvers = _parseAddresses(approversStr);
         this.run(approvers, requiredApprovals);
     }
@@ -23,8 +24,8 @@ contract MultisigCallerScript is Script {
         strings.slice memory s = str.toSlice();
         strings.slice memory delim = ",".toSlice();
         address[] memory result = new address[](s.count(delim) + 1);
-        
-        for(uint i = 0; i < result.length; i++) {
+
+        for (uint256 i = 0; i < result.length; i++) {
             result[i] = vm.parseAddress(s.split(delim).toString());
         }
         return result;
