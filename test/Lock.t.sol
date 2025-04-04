@@ -27,15 +27,15 @@ contract LockTest is Test {
         lock = new Lock{value: ONE_GWEI}(unlockTime);
     }
 
-    function testDeployment_ShouldSetRightUnlockTime() public {
+    function testDeployment_ShouldSetRightUnlockTime() public view {
         assertEq(lock.unlockTime(), unlockTime);
     }
 
-    function testDeployment_ShouldSetRightOwner() public {
+    function testDeployment_ShouldSetRightOwner() public view {
         assertEq(lock.owner(), owner);
     }
 
-    function testDeployment_ShouldReceiveAndStoreFunds() public {
+    function testDeployment_ShouldReceiveAndStoreFunds() public view {
         assertEq(address(lock).balance, ONE_GWEI);
     }
 
@@ -45,20 +45,20 @@ contract LockTest is Test {
         new Lock{value: 1}(currentTime);
     }
 
-    function testFuzz_ShouldFailIfUnlockTimeNotInFuture(uint256 unlockTime) public {
-        vm.assume(unlockTime <= block.timestamp);
+    function testFuzz_ShouldFailIfUnlockTimeNotInFuture(uint256 unlockTime_) public {
+        vm.assume(unlockTime_ <= block.timestamp);
         vm.expectRevert("Unlock time should be in the future");
-        new Lock{value: 1}(unlockTime);
+        new Lock{value: 1}(unlockTime_);
     }
 
-    function testFuzz_ShouldSucceedIfUnlockTimeInFuture(uint256 unlockTime) public {
-        vm.assume(unlockTime > block.timestamp);
-        vm.assume(unlockTime < type(uint256).max); // Prevent overflow
+    function testFuzz_ShouldSucceedIfUnlockTimeInFuture(uint256 unlockTime_) public {
+        vm.assume(unlockTime_ > block.timestamp);
+        vm.assume(unlockTime_ < type(uint256).max); // Prevent overflow
 
         vm.deal(address(this), ONE_GWEI);
-        Lock newLock = new Lock{value: ONE_GWEI}(unlockTime);
+        Lock newLock = new Lock{value: ONE_GWEI}(unlockTime_);
 
-        assertEq(newLock.unlockTime(), unlockTime);
+        assertEq(newLock.unlockTime(), unlockTime_);
         assertEq(address(newLock).balance, ONE_GWEI);
     }
 

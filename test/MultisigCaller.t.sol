@@ -45,7 +45,7 @@ contract MultisigCallerTest is Test {
         ownableTest = new OwnableTest();
     }
 
-    function testConstructor_InitialApprovers() public {
+    function testConstructor_InitialApprovers() public view {
         assertFalse(multisigCaller.hasRole(APPROVER_ROLE, deployer));
         assertTrue(multisigCaller.hasRole(APPROVER_ROLE, approver1));
         assertTrue(multisigCaller.hasRole(APPROVER_ROLE, approver2));
@@ -53,11 +53,11 @@ contract MultisigCallerTest is Test {
         assertFalse(multisigCaller.hasRole(APPROVER_ROLE, nonApprover));
     }
 
-    function testConstructor_ContractAdmin() public {
+    function testConstructor_ContractAdmin() public view {
         assertTrue(multisigCaller.hasRole(DEFAULT_ADMIN_ROLE, address(multisigCaller)));
     }
 
-    function testConstructor_RequiredApprovals() public {
+    function testConstructor_RequiredApprovals() public view {
         assertEq(multisigCaller.requiredApprovals(), REQUIRED_APPROVALS);
     }
 
@@ -420,7 +420,7 @@ contract MultisigCallerTest is Test {
         multisigCaller.approveTransaction{value: amount / 2}(0);
     }
 
-    function testGetApproversCount_ShouldReturnInitialCount() public {
+    function testGetApproversCount_ShouldReturnInitialCount() public view {
         assertEq(multisigCaller.getRoleMemberCount(APPROVER_ROLE), 3);
     }
 
