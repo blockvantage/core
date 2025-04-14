@@ -27,6 +27,7 @@ contract MultisigCallerScript is Script {
 
         for (uint256 i = 0; i < result.length; i++) {
             result[i] = vm.parseAddress(s.split(delim).toString());
+            console.log("Approver %d: %s", i + 1, result[i]);
         }
         return result;
     }
