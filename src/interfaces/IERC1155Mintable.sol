@@ -9,6 +9,8 @@ import {IERC1155} from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
  * @dev Interface for an ERC1155 token contract with minting capabilities controlled by AccessControl.
  */
 interface IERC1155Mintable {
+    error ERC1155MintableZeroAddressAdmin();
+
     /**
      * @dev Sets the base URI for the token metadata.
      * Requires the caller to have the necessary administrative role (e.g., DEFAULT_ADMIN_ROLE).
