@@ -9,19 +9,21 @@ import {IERC1155Mintable} from "./interfaces/IERC1155Mintable.sol";
 /**
  * @title ERC1155Mintable
  * @dev ERC1155 token contract with minting capabilities controlled by AccessControl.
- * The deployer is granted both the DEFAULT_ADMIN_ROLE and MINTER_ROLE.
+ * The admin address is granted both the DEFAULT_ADMIN_ROLE and MINTER_ROLE.
  * @notice Implements IERC1155Mintable interface.
  */
 contract ERC1155Mintable is Context, AccessControlEnumerable, ERC1155, IERC1155Mintable {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
     /**
-     * @dev Constructor that sets the base URI and grants roles to the deployer.
+     * @dev Constructor that sets the base URI and grants roles to the specified admin.
      * @param uri_ The base URI for the token metadata.
+     * @param admin The address to grant admin and minter roles to.
      */
-    constructor(string memory uri_) ERC1155(uri_) {
-        _grantRole(DEFAULT_ADMIN_ROLE, _msgSender());
-        _grantRole(MINTER_ROLE, _msgSender());
+    constructor(string memory uri_, address admin) ERC1155(uri_) {
+        if (admin == address(0)) revert ERC1155MintableZeroAddressAdmin();
+        _grantRole(DEFAULT_ADMIN_ROLE, admin);
+        _grantRole(MINTER_ROLE, admin);
     }
 
     /**
