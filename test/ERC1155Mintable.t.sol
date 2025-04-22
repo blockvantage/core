@@ -37,7 +37,29 @@ contract ERC1155MintableTest is Test, IERC1155Receiver {
         minter = makeAddr("minter");
         user = makeAddr("user");
 
-        erc1155 = new ERC1155Mintable(BASE_URI);
+        erc1155 = new ERC1155Mintable(BASE_URI, deployer);
+    }
+
+    // --- Test Constructor ---
+    function test_RevertIf_AdminIsZeroAddress() public {
+        vm.expectRevert(IERC1155Mintable.ERC1155MintableZeroAddressAdmin.selector);
+        new ERC1155Mintable(BASE_URI, address(0));
+    }
+
+    function testConstructorWithDifferentAdmin() public {
+        ERC1155Mintable newInstance = new ERC1155Mintable(BASE_URI, minter);
+        
+        assertTrue(newInstance.hasRole(DEFAULT_ADMIN_ROLE, minter), "Admin role not granted to specified admin");
+        assertTrue(newInstance.hasRole(MINTER_ROLE, minter), "Minter role not granted to specified admin");
+        
+        assertFalse(newInstance.hasRole(DEFAULT_ADMIN_ROLE, deployer), "Deployer should not have admin role");
+        assertFalse(newInstance.hasRole(MINTER_ROLE, deployer), "Deployer should not have minter role");
+        
+        vm.startPrank(minter);
+        newInstance.mint(user, TOKEN_ID_1, MINT_AMOUNT_1, "");
+        vm.stopPrank();
+        
+        assertEq(newInstance.balanceOf(user, TOKEN_ID_1), MINT_AMOUNT_1, "Mint by admin failed");
     }
 
     // --- Test Initial State ---
